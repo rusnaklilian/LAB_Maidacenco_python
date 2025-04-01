@@ -1,0 +1,48 @@
+# Importarea bibliotecilor necesare pentru analiza și vizualizarea datelor
+import numpy as np  # Pentru lucrul cu array-uri și operații numerice
+import pandas as pd  # Pentru manipularea datelor în tabele (DataFrame)
+import matplotlib.pyplot as plt  # Pentru generarea diverselor tipuri de grafice
+import seaborn as sns  # Pentru vizualizarea statistică a datelor, bazată pe matplotlib
+
+# Încărcarea datelor dintr-un fișier CSV într-un DataFrame
+file_path = 'wine-quality-white-and-red.csv'  # Calea către fișierul cu date
+df = pd.read_csv(file_path)  # Citirea datelor din fișierul CSV și salvarea lor într-un DataFrame
+
+# Conversia tipului de vin în format numeric
+df['type'] = df['type'].map({'red': 0, 'white': 1})  # Conversia tipului de vin: 'red' devine 0, iar 'white' devine 1
+
+# Analiza statistică pentru fiecare caracteristică în funcție de tipul de vin
+statistical_analysis = df.groupby('type').agg(['mean', 'median', 'std', 'var', lambda x: x.max() - x.min()])
+# Gruparea datelor după tipul de vin (roșu sau alb)
+# Pentru fiecare grup, se calculează următorii indicatori statistici:
+# - 'mean' = media aritmetică
+# - 'median' = mediana
+# - 'std' = abaterea standard
+# - 'var' = varianța
+# - lambda x: x.max() - x.min() = amplitudinea (diferența dintre valoarea maximă și minimă)
+
+print("Analiza statistică:\n", statistical_analysis)  # Afișează analiza statistică pentru fiecare tip de vin
+
+# Calcularea corelației absolute pentru fiecare coloană cu tipul de vin
+correlation = df.corr()['type'].abs().sort_values(ascending=False)  # Corelarea fiecărei coloane cu tipul de vin
+# Se calculează corelația absolută pentru fiecare coloană numerică în raport cu tipul de vin și se sortează descrescător
+print("\nCorelația absolută cu tipul de vin:\n", correlation)  # Afișează corelațiile absolute pentru tipul de vin
+
+# Vizualizarea distribuției acidității volatile în funcție de tipul de vin
+plt.figure(figsize=(8, 5))  # Setează dimensiunea figurii
+sns.histplot(data=df, x='volatile acidity', hue='type', kde=True)  # Crează un histograma pentru aciditatea volatilă, colorată după tipul de vin
+plt.title('Distribuția acidității volatile pentru vinurile roșii și albe')  # Titlul graficului
+plt.show()  # Afișează graficul
+
+# Crearea unui boxplot pentru distribuția conținutului de alcool în funcție de tipul de vin
+plt.figure(figsize=(8, 5))  # Setează dimensiunea figurii
+sns.boxplot(data=df, x='type', y='alcohol')  # Creează un boxplot pentru conținutul de alcool, în funcție de tipul de vin
+plt.title('Distribuția conținutului de alcool pentru vinurile roșii și albe')  # Titlul graficului
+plt.xticks([0, 1], ['Red', 'White'])  # Etichetele axei X pentru tipul de vin
+plt.show()  # Afișează graficul
+
+# Crearea unei hărți de căldură pentru matricea de corelație între caracteristicile vinurilor
+plt.figure(figsize=(10, 8))  # Setează dimensiunea figurii
+sns.heatmap(df.corr(), annot=True, fmt='.2f', cmap='coolwarm', linewidths=0.5)  # Creează un heatmap pentru corelațiile dintre caracteristici
+plt.title('Matricea de corelație a caracteristicilor vinurilor')  # Titlul graficului
+plt.show()  # Afișează graficul
